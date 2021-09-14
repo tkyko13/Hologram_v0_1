@@ -7,6 +7,8 @@ let dataConnection;
 
 const sendXfilter = [0, 0, 0, 0, 0];
 
+const demoImgs = [];
+
 function getParam(name, url) {
   if (!url) url = window.location.href;
   name = name.replace(/[\[\]]/g, "\\$&");
@@ -67,9 +69,21 @@ function makeCall() {
 
 // p5 ml5
 async function setup() {
-  const capture = await createCapture(VIDEO);
-  myStream = capture.elt.srcObject;
+  // demo
+  const demo = getParam('demo');
+  if (demo) {
+    for (let i = 0; i < 13; i++) {
+      demoImgs[i] = createImg('img_' + i + '.JPG');
+      demoImgs[i].parent('#demo-video');
+      demoImgs[i].size(480, 640);
+      demoImgs[i].hide();
+    }
+    select('#their-video').hide();
+  }
 
+  const capture = await createCapture(VIDEO);
+  capture.position(windowWidth - 330, windowHeight - 290).size(320, 280);
+  myStream = capture.elt.srcObject;
   // capture.size(width, height);
   // capture.hide(); // Hide the video element, and just show the canvas
   faceapi = ml5.faceApi(capture, {
@@ -93,6 +107,19 @@ async function setup() {
     }
     faceapiResult = res;
 
+    // demo
+    if (demoImgs.length > 0) {
+      if (faceapiResult && faceapiResult[0]) {
+        const faceCener = faceapiResult[0].parts['nose'][0];
+        const sendX = int(map(faceCener.x, 0, 320, 0, demoImgs.length));
+        console.log(sendX + ' / ' + demoImgs.length);
+        demoImgs.forEach((e, i) => {
+          if (i == sendX) e.show();
+          else e.hide();
+        });
+      }
+    }
+
     if (peer.id && dataConnection) {
       if (faceapiResult && faceapiResult[0]) {
         const faceCener = faceapiResult[0].parts['nose'][0];
@@ -109,9 +136,8 @@ async function setup() {
   }
 }
 
-function draw() {
-
-}
+// function draw() {
+// }
 
 function getFaceRotate(face) {
   // const box = face.

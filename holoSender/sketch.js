@@ -34,9 +34,8 @@ async function setup() {
     // imgs[i].hide();
     // imgs[i].style('float:left');
     imgs[i].parent('#my-videos');
+    imgs[i].id('my-video-' + (i + 1));
   }
-
-  console.log(window.location);
 
   // skyway setup
   //Peer作成
